@@ -25,3 +25,7 @@ function animale3() {
     let info = `Specie: ${cane.specie}<br>Razza: ${cane.razza}<br>Zampe: ${cane.zampe}`;
     document.getElementById("d").innerHTML = info;
 }
+function playAudio() {
+    var audio = document.getElementById("myAudio");
+    audio.play();  // Avvia la riproduzione dell'audio
+}
