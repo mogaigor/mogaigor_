@@ -1,46 +1,79 @@
 
-var myGamePiece;
+var myGamePiece = {
+    speedX: 0,
+    speedY: 0,
+    width: 60,
+    height: 60,
+    x: 10,
+    y: 120,
+    imageList: [], // Array to store loaded images
+    contaFrame: 0, // Frame counter
+    actualFrame: 0, // Current frame to display
+    image: null, // Current image
 
-function startGame() {
-    myGamePiece = new component(30, 30, "green", 210, 120);
-    myGameArea.start();
-}
+    update: function() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.contaFrame++;
+        if (this.contaFrame == 50) { // Change frame every 50 frames
+            this.contaFrame = 0;
+            this.actualFrame = (this.actualFrame + 1) % this.imageList.length;
+            this.image = this.imageList[this.actualFrame];
+        }
+    },
+
+    loadImages: function(running) {
+        for (let imgPath of running) {
+            var img = new Image();
+            img.src = imgPath;
+            this.imageList.push(img);
+        }
+        this.image = this.imageList[this.actualFrame];
+    }
+};
 
 var myGameArea = {
-    canvas : document.createElement("canvas"),
-    start : function() {
+    canvas: document.createElement("canvas"),
+    context: null,
+    interval: null,
+
+    start: function() {
         this.canvas.width = 480;
         this.canvas.height = 270;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 20);
+        this.interval = setInterval(updateGameArea, 20); // Update game every 20ms
     },
-    clear : function() {
+
+    clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+
+    drawGameObject: function(gameObject) {
+        this.context.drawImage(
+            gameObject.image,
+            gameObject.x,
+            gameObject.y,
+            gameObject.width,
+            gameObject.height
+        );
     }
+};
+
+var running = ['img1.png', 'img2.png', 'img3.png']; // Example paths for images
+
+function startGame() {
+    myGamePiece.loadImages(running);
+    myGameArea.start();
 }
 
-function component(width, height, color, x, y) {
-    this.width = width;
-    this.height = height;
-    
-    this.x = x;
-    this.y = y;    
-    this.update = function() {
-        ctx = myGameArea.context;
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-    }
-    
-    this.newPos = function() {
-        // Non è più necessario aggiornare la posizione con velocità
-    }    
-}
 function updateGameArea() {
-    myGameArea.clear();    
+    myGameArea.clear();
     myGamePiece.update();
+    myGameArea.drawGameObject(myGamePiece);
 }
 
+// Control functions
 function moveup() {
     myGamePiece.y -= 30; 
 }
