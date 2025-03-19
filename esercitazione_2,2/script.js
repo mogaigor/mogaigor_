@@ -1,4 +1,9 @@
 
+function startGame() {
+    myGamePiece.loadImages(running);
+    myGameArea.start();
+}
+
 var myGamePiece = {
     speedX: 0,
     speedY: 0,
@@ -23,6 +28,7 @@ var myGamePiece = {
     },
 
     loadImages: function(running) {
+        console.log("prova");
         for (let imgPath of running) {
             var img = new Image();
             img.src = imgPath;
@@ -42,14 +48,14 @@ var myGameArea = {
         this.canvas.height = 270;
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-        this.interval = setInterval(updateGameArea, 20); // Update game every 20ms
+        this.interval = setInterval(updateGameArea, 1); // Update game every 20ms
     },
 
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     },
 
-    drawGameObject: function(gameObject) {
+    drawGameObject: function (gameObject) {
         this.context.drawImage(
             gameObject.image,
             gameObject.x,
@@ -62,10 +68,7 @@ var myGameArea = {
 
 var running = ['img1.png', 'img2.png', 'img3.png']; // Example paths for images
 
-function startGame() {
-    myGamePiece.loadImages(running);
-    myGameArea.start();
-}
+
 
 function updateGameArea() {
     myGameArea.clear();
