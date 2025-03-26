@@ -2,6 +2,7 @@
 function startGame() {
     myGamePiece.loadImages(running);
     myGameArea.start();
+    bushObject.loadImages();
 }
 
 var myGamePiece = {
@@ -17,8 +18,11 @@ var myGamePiece = {
     image: null, // Current image
 
     update: function() {
-        this.x += this.speedX;
-        this.y += this.speedY;
+        this.tryY = this.y + this.speedY;
+        this.tryX = this.x + this.speedX;
+
+    //Prima di spostarmi realmente verifico che non ci siano collisioni
+        this.crashWith(bushObject);
         this.contaFrame++;
         if (this.contaFrame == 50) { // Change frame every 50 frames
             this.contaFrame = 0;
@@ -26,7 +30,26 @@ var myGamePiece = {
             this.image = this.imageList[this.actualFrame];
         }
     },
-
+    crashWith: function(otherobj) {
+        var myleft = this.tryX;
+        var myright = this.tryX + this.width;
+        var mytop = this.tryY;
+        var mybottom = this.tryY + this.height;
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + otherobj.width;
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + otherobj.height;
+        var crash = true;
+    
+        //NON HO COLLISIONI SE: Un oggetto è sopra oppure sotto oppure a destra oppure a sinistra dell’altro
+        if((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+          this.x = this.tryX; //Se non ho collisioni sposto realmente l’oggetto
+          this.y = this.tryY;
+        }
+        else //HO COLLISIONI MA PER ORA NON FACCIO NIENTE
+        {
+        }
+      },
     loadImages: function(running) {
         console.log("prova");
         for (let imgPath of running) {
@@ -37,6 +60,19 @@ var myGamePiece = {
         this.image = this.imageList[this.actualFrame];
     }
 };
+
+var bushObject = {
+    width: 100,
+    height: 50,
+    x: 100,
+    y: 270 - 50,
+  
+    loadImages: function() {
+      this.image = new Image(this.width, this.height);
+      this.image.src = "https://i.ibb.co/CPdHYdB/Bush-1.png";
+    }
+  };
+
 
 var myGameArea = {
     canvas: document.createElement("canvas"),
@@ -74,6 +110,7 @@ function updateGameArea() {
     myGameArea.clear();
     myGamePiece.update();
     myGameArea.drawGameObject(myGamePiece);
+    myGameArea.drawGameObject(bushObject);
 }
 
 // Control functions
