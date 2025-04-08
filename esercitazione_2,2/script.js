@@ -1,4 +1,3 @@
-
 function startGame() {
     myGamePiece.loadImages(running);
     myGameArea.start();
@@ -6,8 +5,6 @@ function startGame() {
 }
 
 var myGamePiece = {
-    speedX: 0,
-    speedY: 0,
     width: 60,
     height: 60,
     x: 10,
@@ -18,11 +15,7 @@ var myGamePiece = {
     image: null, // Current image
 
     update: function() {
-        this.tryY = this.y + this.speedY;
-        this.tryX = this.x + this.speedX;
-
-    //Prima di spostarmi realmente verifico che non ci siano collisioni
-        this.crashWith(bushObject);
+        // Prima di aggiornare la posizione, verifica se ci sono collisioni con il cespuglio
         this.contaFrame++;
         if (this.contaFrame == 50) { // Change frame every 50 frames
             this.contaFrame = 0;
@@ -30,26 +23,7 @@ var myGamePiece = {
             this.image = this.imageList[this.actualFrame];
         }
     },
-    crashWith: function(otherobj) {
-        var myleft = this.tryX;
-        var myright = this.tryX + this.width;
-        var mytop = this.tryY;
-        var mybottom = this.tryY + this.height;
-        var otherleft = otherobj.x;
-        var otherright = otherobj.x + otherobj.width;
-        var othertop = otherobj.y;
-        var otherbottom = otherobj.y + otherobj.height;
-        var crash = true;
-    
-        //NON HO COLLISIONI SE: Un oggetto è sopra oppure sotto oppure a destra oppure a sinistra dell’altro
-        if((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-          this.x = this.tryX; //Se non ho collisioni sposto realmente l’oggetto
-          this.y = this.tryY;
-        }
-        else //HO COLLISIONI MA PER ORA NON FACCIO NIENTE
-        {
-        }
-      },
+
     loadImages: function(running) {
         console.log("prova");
         for (let imgPath of running) {
@@ -58,6 +32,40 @@ var myGamePiece = {
             this.imageList.push(img);
         }
         this.image = this.imageList[this.actualFrame];
+    },
+
+    // Funzione per rilevare la collisione con un altro oggetto (il cespuglio)
+    crashWith: function(otherobj, direction) {
+        var myleft = this.x;
+        var myright = this.x + this.width;
+        var mytop = this.y;
+        var mybottom = this.y + this.height;
+        
+        // Direzione in cui il personaggio si sta muovendo
+        if (direction === 'up') {
+            mytop -= 30;
+            mybottom -= 30;
+        } else if (direction === 'down') {
+            mytop += 30;
+            mybottom += 30;
+        } else if (direction === 'left') {
+            myleft -= 30;
+            myright -= 30;
+        } else if (direction === 'right') {
+            myleft += 30;
+            myright += 30;
+        }
+
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + otherobj.width;
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + otherobj.height;
+
+        // Controllo della collisione
+        if (mybottom < othertop || mytop > otherbottom || myright < otherleft || myleft > otherright) {
+            return false; // Nessuna collisione
+        }
+        return true; // C'è una collisione
     }
 };
 
@@ -66,13 +74,12 @@ var bushObject = {
     height: 50,
     x: 100,
     y: 270 - 50,
-  
-    loadImages: function() {
-      this.image = new Image(this.width, this.height);
-      this.image.src = "https://i.ibb.co/CPdHYdB/Bush-1.png";
-    }
-  };
 
+    loadImages: function() {
+        this.image = new Image(this.width, this.height);
+        this.image.src = "https://i.ibb.co/CPdHYdB/Bush-1.png";
+    }
+};
 
 var myGameArea = {
     canvas: document.createElement("canvas"),
@@ -91,7 +98,7 @@ var myGameArea = {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     },
 
-    drawGameObject: function (gameObject) {
+    drawGameObject: function(gameObject) {
         this.context.drawImage(
             gameObject.image,
             gameObject.x,
@@ -104,8 +111,6 @@ var myGameArea = {
 
 var running = ['img1.png', 'img2.png', 'img3.png']; // Example paths for images
 
-
-
 function updateGameArea() {
     myGameArea.clear();
     myGamePiece.update();
@@ -113,19 +118,27 @@ function updateGameArea() {
     myGameArea.drawGameObject(bushObject);
 }
 
-// Control functions
+// Funzioni di controllo senza velocità, ma con prevenzione delle collisioni
 function moveup() {
-    myGamePiece.y -= 30; 
+    if (!myGamePiece.crashWith(bushObject, 'up')) {
+        myGamePiece.y -= 30; // Sposta verso l'alto se non c'è collisione
+    }
 }
 
 function movedown() {
-    myGamePiece.y += 30; 
+    if (!myGamePiece.crashWith(bushObject, 'down')) {
+        myGamePiece.y += 30; // Sposta verso il basso se non c'è collisione
+    }
 }
 
 function moveleft() {
-    myGamePiece.x -= 30; 
+    if (!myGamePiece.crashWith(bushObject, 'left')) {
+        myGamePiece.x -= 30; // Sposta verso sinistra se non c'è collisione
+    }
 }
 
 function moveright() {
-    myGamePiece.x += 30; 
+    if (!myGamePiece.crashWith(bushObject, 'right')) {
+        myGamePiece.x += 30; // Sposta verso destra se non c'è collisione
+    }
 }
