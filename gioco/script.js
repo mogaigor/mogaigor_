@@ -95,12 +95,14 @@ function component(width, height, color, x, y) {
             // Collisione orizzontale
             if (this.direction === 1 && this.x + this.width > otherObj.x) {
                 this.x = otherObj.x - this.width;
+                otherObj.x += 5; // Sposta l'altro oggetto a destra
             } 
             if (this.direction === -1 && this.x < otherObj.x + otherObj.width) {
                 this.x = otherObj.x + otherObj.width;
+                otherObj.x -= 5; // Sposta l'altro oggetto a sinistra
             }
         }
-    }
+    };
 }
 
 // Funzione principale di aggiornamento
